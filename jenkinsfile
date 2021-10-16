@@ -1,0 +1,44 @@
+pipeline {
+                agent any
+                tools {
+                    maven 'maven'
+                }
+                stages {
+                    stage('Git Progress') {
+            steps {
+                git  branch: 'main', credentialsId: 'github_cred', url: 'https://github.com/Shin9184/mvn_test.git'
+            }
+        }
+	stage('Jacoco') {
+            steps {
+                jacoco execPattern: 'target/**.exec', runAlways: true
+            }
+        }
+	stage('Maven Build') {
+            steps {
+                sh 'mvn -B -DskipTests clean package'
+            }
+        }
+        stage('Maven Junit Test ') {
+            steps {
+                sh 'mvn test'
+            }
+            post {
+                always {
+                    junit 'target/surefire-reports/*.xml'
+                }
+            }
+        }
+	stage('Push image') {
+            steps {
+                script {
+                    checkout scm
+                    docker.withRegistry('https://479080306347.dkr.ecr.ap-northeast-2.amazonaws.com', 'ecr:ap-northeast-2:aws_cred') {
+                        def customImage = docker.build("479080306347.dkr.ecr.ap-northeast-2.amazonaws.com/dongsu")
+                        customImage.push("latest")
+                    }
+                }
+            }
+        }
+                }
+            }
