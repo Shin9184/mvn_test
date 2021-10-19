@@ -70,7 +70,7 @@ pipeline {
 	
             stage('Trivy Image Scan') {
                 steps {
-                    sh 'trivy image 479080306347.dkr.ecr.ap-northeast-2.amazonaws.com/dongsu > trivy.txt'
+                    sh 'trivy image tlqkddk123/spring > trivy.txt'
                 }
             }
                 }
