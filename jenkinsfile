@@ -58,16 +58,16 @@ pipeline {
             }
         }
 	
-            stage ('Anchore test') {
-                steps {
-                    script {
-                        sh 'aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin 479080306347.dkr.ecr.ap-northeast-2.amazonaws.com'
-                        def imageLine = '479080306347.dkr.ecr.ap-northeast-2.amazonaws.com/dongsu'
-                        writeFile file: '479080306347.dkr.ecr.ap-northeast-2.amazonaws.com/dongsu', text: imageLine
-                        anchore name: '479080306347.dkr.ecr.ap-northeast-2.amazonaws.com/dongsu', engineCredentialsId: 'anchore_cred', bailOnFail: false
-                    }
+        stage ('Anchore test') {
+            steps {
+                script {
+                    sh 'aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin 479080306347.dkr.ecr.ap-northeast-2.amazonaws.com'
+                    def imageLine = '479080306347.dkr.ecr.ap-northeast-2.amazonaws.com/dongsu'
+                    writeFile file: '479080306347.dkr.ecr.ap-northeast-2.amazonaws.com/dongsu', text: imageLine
+                    anchore name: '479080306347.dkr.ecr.ap-northeast-2.amazonaws.com/dongsu', engineCredentialsId: 'anchore_cred', bailOnFail: false
                 }
             }
+        }
 	
             stage('Trivy Image Scan') {
                 steps {
