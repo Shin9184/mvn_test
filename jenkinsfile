@@ -1,0 +1,77 @@
+pipeline {
+                agent any
+                stages {
+                    stage('Git Progress') {
+            steps {
+                git  branch: 'main', credentialsId: 'github_cred', url: 'https://github.com/Shin9184/mvn_test.git'
+            }
+        }
+	
+        stage('Maven Build') {
+            steps {
+                sh 'chmod +x ./mvnw'
+                sh './mvnw -B -DskipTests clean package'
+            }
+        }
+        stage('Maven Junit Test') {
+            steps {
+                sh 'chmod +x ./mvnw'
+                sh './mvnw test -Dmaven.test.failure.ignore=true'
+            }
+        }
+	
+            stage('Jacoco') {
+                steps {
+                    jacoco execPattern: 'target/**.exec', runAlways: true
+                }
+            }
+	
+            stage('SonarQube analysis') {
+                steps {
+                    script {
+                        withSonarQubeEnv() {
+                            sh "./mvnw sonar:sonar"
+                        }
+                    }
+                }
+            }
+	stage('Snyk Test') {
+            steps {
+                snykSecurity(
+                    failOnIssues: false,
+                    snykInstallation: 'snyk',
+                    snykTokenId: 'snyk_cred'
+                )
+            }
+        }
+	
+        stage('Push image') {
+            steps {
+                script {
+                    checkout scm
+                    docker.withRegistry('https://registry.hub.docker.com', 'dockerhub_cred') {
+                        def customImage = docker.build("tlqkddk123/spring")
+                        customImage.push("${env.BUILD_ID}")
+                        customImage.push("latest")
+                    }
+                }
+            }
+        }
+	
+            stage ('Anchore test') {
+                steps {
+                    script {
+                        def imageLine = '479080306347.dkr.ecr.ap-northeast-2.amazonaws.com/dongsu'
+                        writeFile file: '479080306347.dkr.ecr.ap-northeast-2.amazonaws.com/dongsu', text: imageLine
+                        anchore name: '479080306347.dkr.ecr.ap-northeast-2.amazonaws.com/dongsu', engineCredentialsId: 'anchore_cred', bailOnFail: false
+                    }
+                }
+            }
+	
+            stage('Trivy Image Scan') {
+                steps {
+                    sh 'trivy image 479080306347.dkr.ecr.ap-northeast-2.amazonaws.com/dongsu > trivy.txt'
+                }
+            }
+                }
+            }
