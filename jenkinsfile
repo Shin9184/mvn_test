@@ -61,6 +61,8 @@ pipeline {
             stage ('Anchore test') {
                 steps {
                     script {
+		    	sh 'anchore-cli --url http://13.209.98.132:8228/v1 --u admin --p foobar image add tlqkddk123/spring2'
+			
                         def imageLine = 'tlqkddk123/spring2'
                         writeFile file: 'tlqkddk123/spring2', text: imageLine
                         anchore name: 'tlqkddk123/spring2', engineCredentialsId: 'anchore_cred', bailOnFail: false
