@@ -61,8 +61,7 @@ pipeline {
             stage ('Anchore test') {
                 steps {
                     script {
-		    	sh 'anchore-cli --u admin --p foobar registry add 479080306347.dkr.ecr.ap-northeast-2.amazonaws.com/dongsu2 AKIAW7C3JK2V2AEBBIIZ q6PezOgrQ+w929KuFNM1/DCFnH0azBrBZx0FZczA --registry-type=awsecr'
-                        sh 'anchore-cli --u admin --p foobar image add 479080306347.dkr.ecr.ap-northeast-2.amazonaws.com/dongsu2'
+                        sh 'anchore-cli --url http://13.209.98.132:8228/v1 --u admin --p foobar image add 479080306347.dkr.ecr.ap-northeast-2.amazonaws.com/dongsu2'
                         def imageLine = '479080306347.dkr.ecr.ap-northeast-2.amazonaws.com/dongsu2'
                         writeFile file: '479080306347.dkr.ecr.ap-northeast-2.amazonaws.com/dongsu2', text: imageLine
                         anchore name: '479080306347.dkr.ecr.ap-northeast-2.amazonaws.com/dongsu2', engineCredentialsId: 'anchore_cred', bailOnFail: false
