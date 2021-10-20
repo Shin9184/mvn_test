@@ -50,7 +50,7 @@ pipeline {
                 script {
                     checkout scm
                     docker.withRegistry('https://479080306347.dkr.ecr.ap-northeast-2.amazonaws.com', 'ecr:ap-northeast-2:aws_cred') {
-                        def customImage = docker.build("479080306347.dkr.ecr.ap-northeast-2.amazonaws.com/dongsu")
+                        def customImage = docker.build("479080306347.dkr.ecr.ap-northeast-2.amazonaws.com/dongsu2")
                         customImage.push("${env.BUILD_ID}")
                         customImage.push("latest")
                     }
@@ -61,10 +61,10 @@ pipeline {
             stage ('Anchore test') {
                 steps {
                     script {
-                        sh 'aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin 479080306347.dkr.ecr.ap-northeast-2.amazonaws.com'
-                        def imageLine = '479080306347.dkr.ecr.ap-northeast-2.amazonaws.com/dongsu'
-                        writeFile file: '479080306347.dkr.ecr.ap-northeast-2.amazonaws.com/dongsu', text: imageLine
-                        anchore name: '479080306347.dkr.ecr.ap-northeast-2.amazonaws.com/dongsu', engineCredentialsId: 'anchore_cred', bailOnFail: false
+                        sh 'anchore-cli --u admin --p foobar image add 479080306347.dkr.ecr.ap-northeast-2.amazonaws.com/dongsu2'
+                        def imageLine = '479080306347.dkr.ecr.ap-northeast-2.amazonaws.com/dongsu2'
+                        writeFile file: '479080306347.dkr.ecr.ap-northeast-2.amazonaws.com/dongsu2', text: imageLine
+                        anchore name: '479080306347.dkr.ecr.ap-northeast-2.amazonaws.com/dongsu2', engineCredentialsId: 'anchore_cred', bailOnFail: false
                     }
                 }
             }
@@ -72,7 +72,7 @@ pipeline {
             stage('Trivy Image Scan') {
                 steps {
                     sh 'aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin 479080306347.dkr.ecr.ap-northeast-2.amazonaws.com'
-                    sh 'trivy image 479080306347.dkr.ecr.ap-northeast-2.amazonaws.com/dongsu > trivy.txt'
+                    sh 'trivy image 479080306347.dkr.ecr.ap-northeast-2.amazonaws.com/dongsu2 > trivy.txt'
                 }
             }
                 }
