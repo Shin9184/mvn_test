@@ -58,18 +58,18 @@ pipeline {
             }
         }
 	
-            stage ('Anchore test') {
-                steps {
-                    script {
+            //stage ('Anchore test') {
+                //steps {
+                    //script {
                         //sh 'anchore-cli --url http://3.35.210.177:8228/v1 --u admin --p foobar registry add 479080306347.dkr.ecr.ap-northeast-2.amazonaws.com/dongsu102 AKIAW7C3JK2V2AEBBIIZ q6PezOgrQ+w929KuFNM1/DCFnH0azBrBZx0FZczA --registry-type=awsecr'
                         //sh 'anchore-cli --url http://3.35.210.177:8228/v1 --u admin --p foobar image add 479080306347.dkr.ecr.ap-northeast-2.amazonaws.com/dongsu102'
 
-                        def imageLine = '479080306347.dkr.ecr.ap-northeast-2.amazonaws.com/dongsu102'
-                        writeFile file: '479080306347.dkr.ecr.ap-northeast-2.amazonaws.com/dongsu102', text: imageLine
-                        anchore name: '479080306347.dkr.ecr.ap-northeast-2.amazonaws.com/dongsu102', engineCredentialsId: 'anchore_cred', bailOnFail: false
-                    }
-                }
-            }
+                        //def imageLine = '479080306347.dkr.ecr.ap-northeast-2.amazonaws.com/dongsu102'
+                        //writeFile file: '479080306347.dkr.ecr.ap-northeast-2.amazonaws.com/dongsu102', text: imageLine
+                        //anchore name: '479080306347.dkr.ecr.ap-northeast-2.amazonaws.com/dongsu102', engineCredentialsId: 'anchore_cred', bailOnFail: false
+                    //}
+                //}
+            //}
 	
             stage('Trivy Image Scan') {
                 steps {
