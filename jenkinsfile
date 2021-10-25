@@ -74,7 +74,7 @@ pipeline {
             steps {
                 script {
                     try {
-                        sh '/nikto/program/./nikto.pl -host {Add the deployed node URL here} -o . -Format txt'
+                        sh '/nikto/program/./nikto.pl -host a8b61f7f9f3fc41388b090c86ee32135-852037987.ap-northeast-2.elb.amazonaws.com -o . -Format txt'
                     } catch (e) {
                         sh 'echo Succese'
                     }
