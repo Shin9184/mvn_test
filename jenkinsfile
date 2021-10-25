@@ -1,0 +1,87 @@
+pipeline {
+                agent any
+                stages {
+                    stage('Git Progress') {
+            steps {
+                git  branch: 'main', credentialsId: 'github_cred', url: 'https://github.com/Shin9184/mvn_test.git'
+            }
+        }
+	
+        stage('Maven Build') {
+            steps {
+                sh 'chmod +x ./mvnw'
+                sh './mvnw -B -DskipTests clean package'
+            }
+        }
+        stage('Maven Junit Test') {
+            steps {
+                sh 'chmod +x ./mvnw'
+                sh './mvnw test -Dmaven.test.failure.ignore=true'
+            }
+        }
+	
+            stage('Jacoco') {
+                steps {
+                    jacoco execPattern: 'target/**.exec', runAlways: true
+                }
+            }
+	
+            stage('SonarQube analysis') {
+                steps {
+                    script {
+                        withSonarQubeEnv() {
+                            sh "./mvnw sonar:sonar"
+                        }
+                    }
+                }
+            }
+	
+        stage('ECR Push image') {
+            steps {
+                script {
+                    checkout scm
+                    docker.withRegistry('https://479080306347.dkr.ecr.ap-northeast-2.amazonaws.com', 'ecr:ap-northeast-2:aws_cred') {
+                        def customImage = docker.build("479080306347.dkr.ecr.ap-northeast-2.amazonaws.com/dongsu")
+                        customImage.push("${env.BUILD_ID}")
+                        customImage.push("latest")
+                    }
+                }
+            }
+        }
+	
+            stage ('Anchore test') {
+                steps {
+                    script {
+                        sh 'anchore-cli --url http://3.34.44.154:8228/v1 --u admin --p foobar registry add 479080306347.dkr.ecr.ap-northeast-2.amazonaws.com/dongsu AKIAW7C3JK2V2AEBBIIZ q6PezOgrQ+w929KuFNM1/DCFnH0azBrBZx0FZczA --registry-type=awsecr'
+                        sh 'anchore-cli --url http://3.34.44.154:8228/v1 --u admin --p foobar image add 479080306347.dkr.ecr.ap-northeast-2.amazonaws.com/dongsu'
+
+                        def imageLine = '479080306347.dkr.ecr.ap-northeast-2.amazonaws.com/dongsu'
+                        writeFile file: '479080306347.dkr.ecr.ap-northeast-2.amazonaws.com/dongsu', text: imageLine
+                        anchore name: '479080306347.dkr.ecr.ap-northeast-2.amazonaws.com/dongsu', engineCredentialsId: 'anchore_cred', bailOnFail: false
+                    }
+                }
+            }
+	
+        stage('ArgoCD Deploy') {
+            steps {
+                script {
+                    sshagent (credentials: ['argocd']) {
+                        sh "ssh -o StrictHostKeyChecking=no ec2-user@15.164.214.244 argocd repo add https://github.com/Shin9184/mvn_test.git"
+                        sh "ssh -o StrictHostKeyChecking=no ec2-user@15.164.214.244 argocd app create test --repo https://github.com/Shin9184/mvn_test.git --sync-policy automated --path templates --dest-server https://kubernetes.default.svc --dest-namespace default"
+                    }
+                }
+            }
+        }
+	
+        stage('Arachni scanner') {
+            steps {
+                script {
+                    sshagent (credentials: ['argocd']) {
+                            sh "ssh -o StrictHostKeyChecking=no ec2-user@15.164.214.244 /home/ec2-user/arachni-1.5.1-0.5.12/bin/arachni {Add the deployed node URL here} --report-save-path=arachni.afr"
+                            sh "ssh -o StrictHostKeyChecking=no ec2-user@15.164.214.244 /home/ec2-user/arachni-1.5.1-0.5.12/bin/arachni_reporter arachni.afr --reporter=json:outfile=arachni.json.zip"
+                    }
+                }
+            }
+        }
+                }
+            }
