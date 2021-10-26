@@ -51,8 +51,8 @@ pipeline {
             stage ('Anchore test') {
                 steps {
                     script {
-                        sh 'anchore-cli --url http://13.125.146.184:8228/v1 --u admin --p foobar registry add 479080306347.dkr.ecr.ap-northeast-2.amazonaws.com/dongsu AKIAW7C3JK2VTVGEDJ4V h96rVUZXD6tFGiSilS6IcYkcyjAM6m2+W0hfGtnV --registry-type=awsecr'
-                        sh 'anchore-cli --url http://13.125.146.184:8228/v1 --u admin --p foobar image add 479080306347.dkr.ecr.ap-northeast-2.amazonaws.com/dongsu'
+                        //sh 'anchore-cli --url http://13.125.146.184:8228/v1 --u admin --p foobar registry add 479080306347.dkr.ecr.ap-northeast-2.amazonaws.com/dongsu AKIAW7C3JK2VTVGEDJ4V h96rVUZXD6tFGiSilS6IcYkcyjAM6m2+W0hfGtnV --registry-type=awsecr'
+                        //sh 'anchore-cli --url http://13.125.146.184:8228/v1 --u admin --p foobar image add 479080306347.dkr.ecr.ap-northeast-2.amazonaws.com/dongsu'
 
                         def imageLine = '479080306347.dkr.ecr.ap-northeast-2.amazonaws.com/dongsu'
                         writeFile file: '479080306347.dkr.ecr.ap-northeast-2.amazonaws.com/dongsu', text: imageLine
